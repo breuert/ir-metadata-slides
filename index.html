@@ -1,0 +1,642 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>ir_metadata</title>
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/moon.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/github-dark-dimmed.css">
+
+	<style>
+		.row {
+			display: flex;
+		}
+
+		.column {
+			flex: 50%;
+		}
+	</style>
+
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h4><code>ir_metadata</code></h4>
+				<h5>An Extensible Metadata Schema </br> for IR Experiments</h5>
+				<img src="assets/sigir22-logo.jpg" width="200">
+				<p style="color:grey;font-size:24px;">ACM SIGIR | Madrid | July 11-15, 2022</p>
+				<p style="color:white;font-size:30px;">Timo Breuer, Jüri Keller, Philipp Schaer</p>
+				<img src="assets/ir-logo-black-transparent.png" width="75">
+				<img src="assets/th-koeln-logo.png" width="150">
+			</section>
+
+			<section>
+				<h3>Contributions</h3>
+				<ul>
+					<li class="fragment"><b>Metadata schema</b> based on the <b>PRIMAD</b> taxonomy</li>
+					<li class="fragment"><b>Software</b> support by <code style="font-size:32px">repro_eval</code></li>
+					<li class="fragment">Open-access <b>dataset</b></li>
+					<li class="fragment"> <b>Meta-evaluations</b> / reproducibility studies</li>
+				</ul>
+			</section>
+
+			<section>
+				<h3>Motivation</h3>
+				<ul>
+					<li class="fragment" style="font-size:32px;">CLEF, NTCIR, TREC archive experimental artifacts, i.e., run files</br>
+					<li class="fragment" style="font-size:32px;">Runs are a <b>valuable resource</b> for baselines and meta-evaluations</b></li>
+					<li class="fragment" style="font-size:32px;"><b>BUT the run data does not provide context</b></li>
+					<li class="fragment" style="font-size:32px;">Annotating run files with metadata information facilitates</br><b>better comparability, transparency, and reproducibility</b></li>
+				</ul>
+			</section>
+
+			<section>
+				<h3>Metadata annotations</h3>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">	
+			307		Q0		497476		1		0.9931		bm25	
+			307		Q0		469928		2		0.9674		bm25
+			307		Q0		125806		3		0.9623		bm25
+			307		Q0		504815		4		0.9453		bm25
+			307		Q0		392547		5		0.9223		bm25
+			307		Q0		520656		6		0.9197		bm25
+			307		Q0		1674939		7		0.9125		bm25
+			307		Q0		272661		8		0.8845		bm25
+			307		Q0		377408		9		0.8835		bm25
+			...
+		</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch"> 
+			# ir_metadata.start
+			# platform:
+			# 	...
+			# research goal:
+			# 	...
+			# implementation:
+			# 	...
+			# method:
+			# 	...
+			# actor:
+			# 	...
+			# data:
+			# 	...
+			# ir_metadata.end
+			307		Q0		497476		1		0.9931		bm25	
+			307		Q0		469928		2		0.9674		bm25
+			307		Q0		125806		3		0.9623		bm25
+			307		Q0		504815		4		0.9453		bm25
+			307		Q0		392547		5		0.9223		bm25
+			...
+			</code></pre>
+				</section>
+			</section>
+
+			<section>
+				<h3>Metadata schema</h3>
+				<ul>
+					<li class="fragment" style="font-size:32px;"><b>PRIMAD</b> taxonomy is the <b>logical plan</b> of
+						the metadata schema</li>
+					<li class="fragment" style="font-size:32px;">We extend PRIMAD with subcomponents </br>(cf.
+						checklists on website <a href="https://www.ir-metadata.org/">https://www.ir-metadata.org/</a>)
+					</li>
+					<li class="fragment" style="font-size:32px;">YAML formatted header-like <b>comment</b> at the
+						beginning of the run</li>
+					<li class="fragment" style="font-size:32px;">Easy <b>readability</b> (human/machine) and
+						<b>extensibility</b></li>
+				</ul>
+			</section>
+
+			<section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			platform:
+			</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			platform:
+				hardware:
+					cpu:
+						model: 'Intel Xeon Gold 6144 CPU @ 3.50GHz'
+						architecture: 'x86_64'
+						operation mode: '64-bit'
+						number of cores: 16
+					ram: '64 GB'
+				operating system:
+					kernel: '5.4.0-90-generic'
+					distribution: 'Ubuntu 20.04.3 LTS'
+		</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			platform:
+				hardware:
+					cpu:
+						model: 'Intel Xeon Gold 6144 CPU @ 3.50GHz'
+						architecture: 'x86_64'
+						operation mode: '64-bit'
+						number of cores: 16
+					ram: '64 GB'
+				operating system:
+					kernel: '5.4.0-90-generic'
+					distribution: 'Ubuntu 20.04.3 LTS'
+				software:
+					libraries: 
+						python:
+							- 'scikit-learn==0.20.1'
+							- 'numpy==1.15.4'
+						java:
+							- 'lucene==7.6'
+					retrieval toolkit: 
+						- 'anserini==0.3.0'
+		</code></pre>
+				</section>
+
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			research goal:
+			</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			research goal:
+				venue:
+					name: 'SIGIR'
+					year: '2020'
+				publication:
+					dblp: 'https://dblp.org/rec/conf/sigir/author'
+					arxiv: 'https://arxiv.org/abs/2010.13447'
+					doi: 'https://doi.org/10.1145/3397271.3401036'
+					abstract: 'In this work, we analyze ...'
+		</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			research goal:
+				venue:
+					name: 'SIGIR'
+					year: '2020'
+				publication:
+					dblp: 'https://dblp.org/rec/conf/sigir/author'
+					arxiv: 'https://arxiv.org/abs/2010.13447'
+					doi: 'https://doi.org/10.1145/3397271.3401036'
+					abstract: 'In this work, we analyze ...'
+				evaluation:
+					reported measures: 
+						- 'ndcg'
+						- 'map'
+						- 'P_10'
+					baseline: 
+						- 'tfidf.terrier'  
+						- 'qld.indri'
+					significance test: 
+						- name: 't-test' 
+							correction method: 'bonferroni'
+		</code></pre>
+				</section>
+
+
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			implementation:
+			</code>
+		</pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			implementation:
+				executable:
+					cmd: './bin/search arg01 arg02 input output'
+			</code>
+		</pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			implementation:
+				executable:
+					cmd: './bin/search arg01 arg02 input output'
+				source:
+					lang: 
+						- 'python' 
+						- 'c'
+					repository: 'github.com/castorini/anserini'
+					commit: '9548cd6'
+			</code>
+		</pre>
+				</section>
+
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			method:
+			</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			method:
+				automatic: 'true'
+				score ties: 'reverse alphabetical order'
+				indexing:
+					tokenizer: 'lucene.StandardTokenizer' 
+					stemmer: 'lucene.PorterStemFilter' 
+					stopwords: 'lucene.StandardAnalyzer' 
+			</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			method:
+				automatic: 'true'
+				score ties: 'reverse alphabetical order'
+				indexing:
+					tokenizer: 'lucene.StandardTokenizer' 
+					stemmer: 'lucene.PorterStemFilter' 
+					stopwords: 'lucene.StandardAnalyzer' 
+				retrieval:
+					- name: 'bm25' 
+					  method: 'lucene.BM25Similarity'
+					  b: 0.4
+					  k1: 0.9
+					- name: 'lr reranker'
+					  method: 'sklearn.LogisticRegression' 
+					  reranks: 'bm25' 
+					- name: 'interpolation' 
+					  weight: 0.6 
+					  interpolates: 
+							- 'lr reranker' 
+							- 'bm25' 
+			</code></pre>
+				</section>
+
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			actor: 
+		</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			actor:
+				name: 'Jimmy Lin' 
+				orcid: '0000-0002-0661-7189'
+				team: 'h2oloo' 
+				role: 'experimenter' # or 'reproducer'
+		</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			actor:
+				name: 'Jimmy Lin' 
+				orcid: '0000-0002-0661-7189'
+				team: 'h2oloo' 
+				role: 'experimenter' # or 'reproducer'
+				degree: 'Ph.D.' 
+				fields: 
+					- 'nlp'
+					- 'ir'
+					- 'databases'
+					- 'large-scale distributed algorithms'
+					- 'data analytics'
+				mail: 'jimmylin@uwaterloo.ca' 
+				github: 'https://github.com/lintool' 
+				twitter: 'https://twitter.com/lintool' 
+		</code></pre>
+				</section>
+
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			data:
+		</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			data:
+				test_collection:
+					name: 'The New York Times Annotated Corpus'
+					source: 'catalog.ldc.upenn.edu/LDC2008T19'
+					qrels: 'trec.nist.gov/data/core/qrels.txt'
+					topics: 'trec.nist.gov/data/core/core_nist.txt'
+					ir_datasets: 'nyt/trec-core-2017' 
+		</code></pre>
+				</section>
+				<section data-auto-animate>
+					<pre data-id="code-animation"><code data-trim class="language-yaml stretch">
+			data:
+				test_collection:
+					name: 'The New York Times Annotated Corpus'
+					source: 'catalog.ldc.upenn.edu/LDC2008T19'
+					qrels: 'trec.nist.gov/data/core/qrels.txt'
+					topics: 'trec.nist.gov/data/core/core_nist.txt'
+					ir_datasets: 'nyt/trec-core-2017' 
+				training_data: 
+					- name: 'TREC Robust 2004'
+					  folds: 
+							- 'disks45/nocr/trec-robust-2004/fold1'
+							- 'disks45/nocr/trec-robust-2004/fold2' 
+				other:
+					- name: 'GloVe embeddings'
+					  source: 'https://nlp.stanford.edu/projects/glove/'
+		</code></pre>
+				</section>
+			</section>
+
+			<section>
+				<section>
+					<h3>Software support</h3>
+					<ul>
+						<li class="fragment" data-fragment-index="1" style="font-size:32px;">Metadata handling and (semi-)automatic annotations</li>
+						<li class="fragment" data-fragment-index="2" style="font-size:32px;">Meta-analysis based on metadata fields </li>
+						<li class="fragment" data-fragment-index="3" style="font-size:32px;"><code
+								style="font-size:28px">repro_eval==0.4.0</code></br><a
+								href="https://github.com/irgroup/repro_eval">https://github.com/irgroup/repro_eval</a>
+						</li>
+						<li class="fragment"data-fragment-index="4"  style="font-size:32px;">Colab notebook</br>
+							<a href=https://colab.research.google.com/github/irgroup/ir_metadata/blob/master/resources/demo.ipynb>ir_metadata/blob/master/resources/demo.ipynb</a>
+						</li>
+					</ul>
+					<p class="fragment"data-fragment-index="4" ><a href="https://colab.research.google.com/github/irgroup/ir_metadata/blob/master/resources/demo.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg"></a>
+				</section>
+
+				<section>
+					<h4>Metadata handling and annotations</h4>
+					<pre>
+				  <code data-line-numbers class="language-python stretch r-frame" style="font-size:20px;">from repro_eval.metadata import MetadataHandler
+
+run_path='./run.txt', 
+metadata_path='./metadata.yaml'
+metadata_handler = MetadataHandler(run_path, metadata_path)
+metadata_handler.write_metadata(complete_metadata=True)</code>
+			 </pre>
+				</section>
+
+				<section>
+					<h4>Metadata analysis</h4>
+					<pre>
+				  <code data-line-numbers="1-14|6-7|9-10|12-14" class="language-python stretch r-frame" style="font-size:20px;">from repro_eval.metadata import MetadataAnalyzer, PrimadExperiment
+
+run_path ='./run.txt'
+dir_path ='./runs/'
+
+metadata_analyzer = MetadataAnalyzer(run_path)
+experiments = metadata_analyzer.analyze_directory(dir_path)
+
+primad_type = 'priMad'
+run_candidates = experiments.get(primad_type)
+
+primad_experiment = PrimadExperiment(primad=primad_type,
+														rep_base=run_candidates,...)
+primad_experiment.evaluate()
+			  </code></pre>
+				</section>
+			</section>
+
+			</section>
+
+
+			<section>
+				<section>
+					<h3>Dataset</h3>
+					<ul>
+						<li class="fragment" data-fragment-index="1" style="font-size:32px;">Annotated dataset contains 463 run files</li>
+						<li class="fragment" data-fragment-index="2" style="font-size:32px;">Runs are based on <b>cross-collection relevance
+								feedback</b> as introduced by Grossman and Cormack (TREC, 2017/18)</li>
+						<li class="fragment" data-fragment-index="3" style="font-size:32px;"><b>Reimplementations</b> by Yu et al. (TREC, 2018;
+							ECIR, 2019) </br> and by us (SIGIR, 2020; CLEF, 2021)</li>
+						<li class="fragment" data-fragment-index="4" style="font-size:32px;"><b>Zenodo record:</b> <a
+								href="https://zenodo.org/record/5997491">https://zenodo.org/record/5997491</a></li>
+					</ul>
+					<p class="fragment" data-fragment-index="4"><a href="https://doi.org/10.5281/zenodo.5997491"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.5997491.svg" alt="DOI"></a></p>
+				</section>
+				<section>
+					<h4>Cross-collection relevance feedback</h4>
+					<div class="row">
+						<div class="column" style="padding: 50px;">
+							<ol>
+								<li class="fragment" style="font-size:32px;"><b>Derive tfidf representations</b> of
+									documents for a given topic/info need from one or two source collections</li>
+								<li class="fragment" style="font-size:32px;"><b>Train a relevance classfier</b> with the
+									tfidf representations and relevance labels</li>
+								<li class="fragment" style="font-size:32px;"><b>Rank documents</b> of the target
+									collection</li>
+							</ol>
+						</div>
+						<div class="column">
+							<img src="assets/ccrf.svg" style="border: 6px solid rgb(151, 151, 151);" height="500">
+						</div>
+					</div>
+				</section>
+				<section>
+					<h3>Dataset</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Researchers</th>
+								<th>Method</th>
+								<th>Target collections</th>
+								<th>Runs</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>GC</td>
+								<td>GC'17</td>
+								<td>Core17</td>
+								<td>2</td>
+							</tr>
+							<tr>
+								<td>YXL</td>
+								<td>GC'17</td>
+								<td>Robust04/05,Core17/18</td>
+								<td>327</td>
+							</tr>
+							<tr>
+								<td>BFFMSSS</td>
+								<td>GC'17</td>
+								<td>Core17</td>
+								<td>100</td>
+							</tr>
+							<tr>
+								<td>GC</td>
+								<td>GC'18</td>
+								<td>Core18</td>
+								<td>2</td>
+							</tr>
+							<tr>
+								<td>BPS</td>
+								<td>GC'18</td>
+								<td>Robust04/05,Core17/18</td>
+								<td>32</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+			</section>
+
+
+			<section>
+				<section>
+					<h3>Meta-evaluations</h3>
+					<table>
+						<thead>
+							<tr>
+								<th style="font-size:36px;">Experiment</th>
+								<th style="font-size:36px;">Runs</th>
+								<th style="font-size:36px;">Type</th>
+								<th style="font-size:36px;">Data</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td style="font-size:36px;">PRIM'AD</td>
+								<td style="font-size:36px;">YXL</td>
+								<td style="font-size:36px;">Parameter sweeps</td>
+								<td style="font-size:36px;">Core17/18</td>
+							</tr>
+							<tr>
+								<td style="font-size:36px;">P'R'I'M'A'D</td>
+								<td style="font-size:36px;">GC, YXL, </br>BFFMSSS</td>
+								<td style="font-size:36px;">Reproducibility</td>
+								<td style="font-size:36px;">Core17</td>
+							</tr>
+							<tr>
+								<td style="font-size:36px;">P'R'I'M'A'D'</td>
+								<td style="font-size:36px;">GC, YXL, BPS</td>
+								<td style="font-size:36px;">Generalizability</td>
+								<td style="font-size:36px;">Robust04/05, Core17/18</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+
+
+				<section>
+					<h3>PRIM'AD</h3>
+					<img src="assets/priMad_ap.svg" height="400" style="border: 6px solid rgb(151, 151, 151);">
+					<img src="assets/priMad_nrmse.svg" height="400" style="border: 6px solid rgb(151, 151, 151);">
+				</section>
+				<section>
+					<h3>P'R'I'M'A'D</h3>
+					<table>
+						<thead>
+							<tr>
+								<th>Researchers</th>
+								<th>GC</th>
+								<th>YXL</th>
+								<th>BFFMSSS</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>AP</td>
+								<td>0.3711</td>
+								<td>0.4018</td>
+								<td>0.3612</td>
+							</tr>
+							<tr>
+								<td>KTU</td>
+								<td>1.0000</td>
+								<td>0.0086</td>
+								<td>0.0051</td>
+							</tr>
+							<tr>
+								<td>RBO</td>
+								<td>1.0000</td>
+								<td>0.1630</td>
+								<td>0.5747</td>
+							</tr>
+							<tr>
+								<td>RMSE</td>
+								<td>0.0000</td>
+								<td>0.1911</td>
+								<td>0.1071</td>
+							</tr>
+							<tr>
+								<td>p-value</td>
+								<td>1.0000</td>
+								<td>0.1009</td>
+								<td>0.7885</td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+				<section>
+					<h3>P'R'I'M'A'D'</h3>
+					<img src="assets/PRIMAD.svg" style="border: 6px solid rgb(151, 151, 151);">
+				</section>
+			</section>
+
+			<section data-background-iframe="https://www.ir-metadata.org/" data-background-interactive>
+			</section>
+
+			<section>
+				<section>
+					<h3>Conclusions & Future work</h3>
+					<ul>
+						<li class="fragment">
+							<b>Community project:</b> Developing a metadata schema is a socio-technological process
+						</li>
+						<li class="fragment">
+							Collaboration with <b>shared task organizers</b>
+						</li>
+						<li class="fragment">
+							Documentation of more <b>complex retrieval pipelines</b>
+						</li>
+						<li class="fragment">
+							<b>Automatic generation of metadata</b> (for the Method) from the source code
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Resources</h3>
+					<ul>
+						<li style="font-size:32px;">Website</br><a
+								href="https://www.ir-metadata.org/">https://www.ir-metadata.org/</a></li>
+						<li style="font-size:32px;"><code style="font-size:28px;">repro_eval</code></br><a
+								href="https://github.com/irgroup/repro_eval">https://github.com/irgroup/repro_eval</a>
+						</li>
+						<li style="font-size:32px;">Colab notebook</br><a
+								href=https://colab.research.google.com/github/irgroup/ir_metadata/blob/master/resources/demo.ipynb"">ir_metadata/blob/master/resources/demo.ipynb</a>
+						</li>
+						<li style="font-size:32px;">Dataset</br><a
+								href="https://zenodo.org/record/5997491">https://zenodo.org/record/5997491</a></li>
+						<li style="font-size:32px;">Slides</br><a
+								href="https://breuert.github.io/ir-metadata-slides">https://breuert.github.io/ir-metadata-slides</a>
+						</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Acknowledgements</h3>
+					<p style="font-size:32px;">Many thanks to the SIGIR Student Travel Grant Program!</p>
+					<img src="assets/sigir-logo.jpg" width="200" style="border: 6px solid rgb(151, 151, 151);">
+				</section>
+			</section>
+
+		</div>
+	</div>
+
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+			slideNumber: true,
+
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+		});
+	</script>
+</body>
+
+</html>
